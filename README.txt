@@ -11,6 +11,7 @@ Website: https://www.twitch.tv/xailran
 #     Versions      #
 #####################
 
+1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
 1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
 1.0.0 - Initial Release
 
@@ -58,7 +59,7 @@ Existing clients are able to request early release versions of public scripts. I
 
 Public Scripts:
 Store (1.5.1) (2.0.0 coming out soon!)
-Fight (1.1.0)
+Fight (1.1.1)
 Xailran's Script Bundle
 	The Song Didn't Play (1.0.0)
 	Points on Join (1.0.0)
@@ -67,7 +68,7 @@ Xailran's Script Bundle
 	Word Count Parameters (1.1.0)
 	$delay Parameter (1.0.0)
 
-Up to date as of 10/02/2019
+Up to date as of 14/02/2019
 
 #############################################
 #   Donations are never expected, but any   #

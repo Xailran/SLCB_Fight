@@ -171,11 +171,18 @@
 	"tooltip": "Response when target doesn't have enough currency. \r\n{0} = target \r\n{1} = command cost\r\n{2} = currencyname\r\n{3} = target points",
 	"group": "Response Messages"
 	},
-	"invalidEntry": {
+	"outsiderange": {
 	"type": "textbox",
-	"value": "{0} -> you need to enter a number for how much to fight for! Format: {1} (opponent name) (amount)",
+	"value": "{0} -> you need to enter a number between {1} and {2} for the amount to fight for! Format: {3} (opponent name) (amount)",
 	"label": "Invalid entry for points",
-	"tooltip": "Response when user submits a word (or nothing) for the amount to fight for \r\n{0} = user \r\n{1} = command",
+	"tooltip": "Response when user submits a word (or nothing) for the amount to fight for \r\n{0} = user \r\n{1} = Minimum value\r\n{2} = Maximum value\r\n{3} = command",
+	"group": "Response Messages"
+	},
+	"targetoffline": {
+	"type": "textbox",
+	"value": "Hey, that viewer isn't online right now, fighting them would be unfair!",
+	"label": "Target offline",
+	"tooltip": "Response when user targets someone who is offline\r\n{0} = user \r\n{1} = target",
 	"group": "Response Messages"
 	},
 	"notperm": {

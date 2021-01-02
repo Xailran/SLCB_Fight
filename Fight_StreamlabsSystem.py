@@ -18,13 +18,14 @@ from time import time
 ScriptName = "Fight"
 Website = "https://www.twitch.tv/Xailran"
 Creator = "Xailran"
-Version = "1.1.0"
+Version = "1.1.1"
 Description = "Let viewers fight each other with a variety of weapons"
 
 #---------------------------------------
 # Versions
 #---------------------------------------
 """
+1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
 1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
 1.0.0 - Initial Release
 """
@@ -161,7 +162,7 @@ def Init():
 	
 def Execute(data):
 	"""Required Execute data function"""
-	if not data.IsWhisper() and data.IsFromTwitch() and data.GetParam(0).lower() == MySet.command.lower():
+	if not data.IsWhisper() and not data.IsFromDiscord() and data.GetParam(0).lower() == MySet.command.lower():
 		if not HasPermission(data, MySet.FightPermission, MySet.FightPermissionInfo):
 			return
 		if MySet.onlylive and not Parent.IsLive():
@@ -171,23 +172,22 @@ def Execute(data):
 		if IsOnCooldown(data, "fight"):
 			Fight(data)
 	
-	if not data.IsWhisper() and data.IsFromTwitch() and MySet.NeedApproval and data.GetParam(0).lower() == MySet.acceptcommand.lower():
+	if not data.IsWhisper() and not data.IsFromDiscord() and MySet.NeedApproval and data.GetParam(0).lower() == MySet.acceptcommand.lower():
 		global fightDict
 		challenge = False
-		for userdict in fightDict.keys():
-			if userdict["timestamp"]+MySet.accepttime < int(time()):
-				del fightDict[userdict]
+		for user, userdict in fightDict.items():
+			if userdict["timestamp"] + MySet.accepttime < int(time()):
+				del fightDict[user]
 			else:
 				if userdict["opponent"].lower() == data.UserName.lower():
 					challenge = True
 					Attack(userdict["data"], userdict)
-					del fightDict[userdict]
+					del fightDict[user]
 					break
 		if not challenge:
 			message = MySet.nochallenge.format(data.UserName)
 			SendResp(data, message)
 
-	
 def Tick():
 	"""Required tick function"""
 	return

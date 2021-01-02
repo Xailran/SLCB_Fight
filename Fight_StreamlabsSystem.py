@@ -8,6 +8,7 @@
 import codecs
 import json
 import os
+import re
 import ctypes
 import winsound
 from time import time
@@ -18,13 +19,14 @@ from time import time
 ScriptName = "Fight"
 Website = "https://www.twitch.tv/Xailran"
 Creator = "Xailran"
-Version = "1.1.1"
+Version = "1.2.0"
 Description = "Let viewers fight each other with a variety of weapons"
 
 #---------------------------------------
 # Versions
 #---------------------------------------
 """
+1.2.0 - Added $addweapon() parameter.
 1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
 1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
 1.0.0 - Initial Release
@@ -191,6 +193,29 @@ def Execute(data):
 def Tick():
 	"""Required tick function"""
 	return
+
+def Parse(parseString, userid, username, targetid, targetname, message):
+	"""Adds parameters to be used in commands"""
+	#Add Weapon parameter
+	#Group 1 = whole parameter, group 2 = weapon to be added, group 3 = success message, group 4 = failure message
+	aw = re.match('^.*(\$addweapon\("?([^"]+)"?,\s?"?([^"]*)"?,\s?"?([^"]+)"?\)).*', parseString)
+	if aw:
+		with codecs.open(Weapons, encoding="utf-8-sig", mode="r") as file:
+			Item = [line.strip().lower() for line in file]
+		if aw.group(2).lower() in Item or aw.group(2) == "":
+			#Weapon already exists
+			parseString = parseString.replace(aw.group(1), aw.group(4))
+		else:
+			#Weapon needs to be added
+			Item.append(aw.group(2))
+			Item.sort()
+			with codecs.open(Weapons, "w", "utf-8") as f:
+				filedata = Item.pop(0)
+				for x in Item:
+					filedata += "\r\n" + x
+				f.write(filedata)
+			parseString = parseString.replace(aw.group(1), aw.group(3))
+	return parseString
 		
 #---------------------------------------
 # [Optional] Fight functions
@@ -301,8 +326,6 @@ def Attack(data, userfightdict):
 	command = MySet.command.lower()
 	Parent.AddCooldown(ScriptName,command,MySet.timerCooldown)
 	Parent.AddUserCooldown(ScriptName,command,userfightdict["data"].User,MySet.timerUserCooldown)
-
-
 
 #---------------------------------------
 # Classes

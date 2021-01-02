@@ -11,6 +11,7 @@ Website: https://www.twitch.tv/xailran
 #     Versions      #
 #####################
 
+1.2.0 - Added $addweapon() parameter.
 1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
 1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
 1.0.0 - Initial Release
@@ -27,6 +28,12 @@ Set weapons that can be used in the weapons.txt, and use the FightResponses.txt 
 	Like the default Duel minigame, but you choose what weapons viewers will randomly use!
 	"!fight @target" or "!fight target". Enjoy the action!
 	If users can choose how much to fight for (set in the UI), "!fight target value" will be the command to use
+
+#####################
+#    Parameters     #
+#####################
+$addweapon("weapon name", "success message", "Failure message") - Adds "weapon name" to the list of weapons that can be used in a fight
+    Example: $addweapon($msg, "$username has added the weapon $msg", "The weapon $msg could not be added")
 
 #######################
 #   Default Weapons   #
@@ -46,7 +53,8 @@ train
 ######################
 #   Future Updates   #
 ######################
-Add command for adding weapons to the fight file
+Add stats tracking for fights, and parameters for accessing those stats
+Add leaderboard using above stats
 
 ################################
 #   Other Scripts by Xailran   #
@@ -59,7 +67,7 @@ Existing clients are able to request early release versions of public scripts. I
 
 Public Scripts:
 Store (1.5.1) (2.0.0 coming out soon!)
-Fight (1.1.1)
+Fight (1.2.0)
 Xailran's Script Bundle
 	The Song Didn't Play (1.0.0)
 	Points on Join (1.0.0)

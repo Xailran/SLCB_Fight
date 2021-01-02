@@ -19,13 +19,14 @@ from time import time
 ScriptName = "Fight"
 Website = "https://www.twitch.tv/Xailran"
 Creator = "Xailran"
-Version = "1.2.1"
+Version = "1.2.2"
 Description = "Let viewers fight each other with a variety of weapons"
 
 #---------------------------------------
 # Versions
 #---------------------------------------
 """
+1.2.2 - Changed when cooldown starts
 1.2.1 - Mixer-specific and general bug fixes
 1.2.0 - Added $addweapon() parameter.
 1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
@@ -96,7 +97,7 @@ def ResetWeaponsFile():
 	if returnValue == MB_YES:
 		location = os.path.join(os.path.dirname(__file__), "Weapons.txt")
 		with codecs.open(location, "w", "utf-8") as f:
-			textline = "apple\r\naxe\r\nboomerang\r\nchainsaw\r\ngolf club\r\npistol\r\nspear\r\nspoon\r\ntaco\r\ntrain\r\n"
+			textline = "apple\r\naxe\r\nboomerang\r\nchainsaw\r\ngolf club\r\npistol\r\nspear\r\nspoon\r\ntaco\r\ntrain"
 			f.write(textline)
 		MessageBox(0, u"Weapons successfully restored to default values!"
 					, u"Reset complete!", 0)
@@ -281,6 +282,8 @@ def Fight(data):
 		SendResp(data, message)
 		return
 	#Approval system
+	Parent.AddCooldown(ScriptName,"fight",MySet.timerCooldown)
+	Parent.AddUserCooldown(ScriptName,"fight",userfightdict["data"].User,MySet.timerUserCooldown)
 	if MySet.NeedApproval:
 		global fightDict
 		userfightdict["timestamp"] = int(time())
@@ -324,8 +327,6 @@ def Attack(data, userfightdict):
 		SendResp(userfightdict["data"], message)
 		message = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
 		SendResp(userfightdict["data"], message)
-	Parent.AddCooldown(ScriptName,MySet.command.lower(),MySet.timerCooldown)
-	Parent.AddUserCooldown(ScriptName,MySet.command.lower(),userfightdict["data"].User,MySet.timerUserCooldown)
 
 #---------------------------------------
 # Classes

@@ -11,6 +11,8 @@ Website: https://www.twitch.tv/xailran
 #     Versions      #
 #####################
 
+1.2.2 - Changed when cooldown starts
+1.2.1 - Mixer-specific and general bug fixes
 1.2.0 - Added $addweapon() parameter.
 1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
 1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
@@ -35,26 +37,12 @@ Set weapons that can be used in the weapons.txt, and use the FightResponses.txt 
 $addweapon("weapon name", "success message", "Failure message") - Adds "weapon name" to the list of weapons that can be used in a fight
     Example: $addweapon($msg, "$username has added the weapon $msg", "The weapon $msg could not be added")
 
-#######################
-#   Default Weapons   #
-#######################
-Just in case you deleted them, but want to restore them:
-apple
-axe
-boomerang
-chainsaw
-golf club
-pistol
-spear
-spoon
-taco
-train
-
 ######################
 #   Future Updates   #
 ######################
 Add stats tracking for fights, and parameters for accessing those stats
 Add leaderboard using above stats
+Add UI option for how much to win
 
 ################################
 #   Other Scripts by Xailran   #
@@ -67,16 +55,10 @@ Existing clients are able to request early release versions of public scripts. I
 
 Public Scripts:
 Store (1.5.1) (2.0.0 coming out soon!)
-Fight (1.2.0)
-Xailran's Script Bundle
-	The Song Didn't Play (1.0.0)
-	Points on Join (1.0.0)
-	Next Songs (1.0.0)
-	Songlist Exporter (1.0.0)
-	Word Count Parameters (1.1.0)
-	$delay Parameter (1.0.0)
+Fight (1.2.2)
+Xailran's Script Bundle (1.2.2)
 
-Up to date as of 14/02/2019
+Up to date as of 16/02/2019
 
 #############################################
 #   Donations are never expected, but any   #

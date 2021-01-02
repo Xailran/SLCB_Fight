@@ -78,6 +78,14 @@
 	"tooltip": "Set the chance that the person who started the fight will win",
 	"group": "Fight Values"
 	},
+	"UserChoiceSetting": {
+	"type": "dropdown",
+	"value": "Default",
+	"items": ["Disabled","Standard","Default"],
+	"label": "User choices",
+	"tooltip": "Set whether \r\nDisabled = Users cannot choose how many points to fight for.\r\nStandard = Users must choose an amount to fight for, between the min and max values below. Users MUST choose a value\r\nDefault = Same as Standard, but if users don't choose a value, one will be determined using the below setting",
+	"group": "Fight Values"
+	},
 	"FightSetting": {
 	"type": "dropdown",
 	"value": "Constant",
@@ -90,22 +98,57 @@
 	"type": "numberbox",
 	"value": 250,
 	"label": "Constant value",
-	"tooltip": "If using the Constant setting in Points Setting, this is where you set its value",
+	"tooltip": "If using the Constant setting in Points Setting, this is where you set its value.\r\n If using the Users Choice (w/ default) setting, this is the default value used",
 	"group": "Fight Values"
 	},
 	"FightMinValue": {
 	"type": "numberbox",
 	"value": 100,
 	"label": "Minimum value",
-	"tooltip": "If using the Random setting in Points Setting, this is where you set its minimum value",
+	"tooltip": "If using the Random setting in Points Setting, this is where you set its minimum value.\r\n If using the Users Choice setting, this is the minimum value users can choose",
 	"group": "Fight Values"
 	},
 	"FightMaxValue": {
 	"type": "numberbox",
 	"value": 500,
 	"label": "Maximum value",
-	"tooltip": "If using the Random setting in Points Setting, this is where you set its maximum value",
+	"tooltip": "If using the Random setting in Points Setting, this is where you set its maximum value.\r\n If using the Users Choice setting, this is the maximum value users can choose",
 	"group": "Fight Values"
+	},
+	"NeedApproval": {
+	"type": "checkbox",
+	"value": false,
+	"label": "Fight challenges must be accepted",
+	"tooltip": "If ticked, the target of the fight challenge must accept the challenge, or no fight will happen",
+	"group": "Accept Fight"
+	},
+	"acceptcommand": {
+	"type": "textbox",
+	"value": "accept",
+	"label": "Accept command",
+	"tooltip": "Message/command that the target of a fight challenge must use to accept the challenge",
+	"group": "Accept Fight"
+	},
+	"accepttime": {
+	"type": "numberbox",
+	"value": 180,
+	"label": "Accept Time",
+	"tooltip": "The amount of time a challenge can be accepted in before it expires.",
+	"group": "Accept Fight"
+	},
+	"challengeissued": {
+	"type": "textbox",
+	"value": "{0} has issued a challenge against {1}; Type {2} in chat within the next {3} seconds to accept!",
+	"label": "Stream not live",
+	"tooltip": "Message that will display if user attempts to use the command while stream is not live. \r\n{0} = User\r\n{1} = opponent\r\n{2} = accept command/word\r\n{3} = time to accept within.",
+	"group": "Accept Fight"
+	},
+	"nochallenge": {
+	"type": "textbox",
+	"value": "Sorry {0}, but there are no challenges for you to confirm currently!",
+	"label": "Stream not live",
+	"tooltip": "Message that will display if user attempts to use the command while stream is not live. \r\n {0} = User",
+	"group": "Accept Fight"
 	},
 	"respNotLive": {
 	"type": "textbox",
@@ -126,6 +169,13 @@
 	"value": "{0} doesn't have enough {2}!",
 	"label": "Not enough points (target)",
 	"tooltip": "Response when target doesn't have enough currency. \r\n{0} = target \r\n{1} = command cost\r\n{2} = currencyname\r\n{3} = target points",
+	"group": "Response Messages"
+	},
+	"invalidEntry": {
+	"type": "textbox",
+	"value": "{0} -> you need to enter a number for how much to fight for! Format: {1} (opponent name) (amount)",
+	"label": "Invalid entry for points",
+	"tooltip": "Response when user submits a word (or nothing) for the amount to fight for \r\n{0} = user \r\n{1} = command",
 	"group": "Response Messages"
 	},
 	"notperm": {

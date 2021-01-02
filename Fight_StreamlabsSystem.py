@@ -10,6 +10,7 @@ import json
 import os
 import ctypes
 import winsound
+from time import time
 
 #---------------------------------------
 # Script information
@@ -17,13 +18,14 @@ import winsound
 ScriptName = "Fight"
 Website = "https://www.twitch.tv/Xailran"
 Creator = "Xailran"
-Version = "1.0.0"
+Version = "1.1.0"
 Description = "Let viewers fight each other with a variety of weapons"
 
 #---------------------------------------
 # Versions
 #---------------------------------------
 """
+1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
 1.0.0 - Initial Release
 """
 
@@ -154,19 +156,37 @@ def Init():
 	MySet = Settings(Parent, settingsFile)
 	global parent
 	parent = Parent
+	global fightDict
+	fightDict = {}
 	
 def Execute(data):
 	"""Required Execute data function"""
-	if (not data.IsWhisper() and data.IsFromTwitch() and data.GetParam(0).lower() == MySet.command.lower()):
+	if not data.IsWhisper() and data.IsFromTwitch() and data.GetParam(0).lower() == MySet.command.lower():
 		if not HasPermission(data, MySet.FightPermission, MySet.FightPermissionInfo):
 			return
-		if (MySet.onlylive and not Parent.IsLive()):
+		if MySet.onlylive and not Parent.IsLive():
 			message = MySet.respNotLive.format(data.UserName)
 			SendResp(data, message)
 			return
-		command = MySet.command.lower()
-		if IsOnCooldown(data, command):
+		if IsOnCooldown(data, "fight"):
 			Fight(data)
+	
+	if not data.IsWhisper() and data.IsFromTwitch() and MySet.NeedApproval and data.GetParam(0).lower() == MySet.acceptcommand.lower():
+		global fightDict
+		challenge = False
+		for userdict in fightDict.keys():
+			if userdict["timestamp"]+MySet.accepttime < int(time()):
+				del fightDict[userdict]
+			else:
+				if userdict["opponent"].lower() == data.UserName.lower():
+					challenge = True
+					Attack(userdict["data"], userdict)
+					del fightDict[userdict]
+					break
+		if not challenge:
+			message = MySet.nochallenge.format(data.UserName)
+			SendResp(data, message)
+
 	
 def Tick():
 	"""Required tick function"""
@@ -176,51 +196,76 @@ def Tick():
 # [Optional] Fight functions
 #---------------------------------------
 def Fight(data):
-	"""Start of Fight function"""
+	"""Full setup for attack function"""
 	#Establishes opponent
-	opponent = data.GetParam(1).replace("@", "")
+	userfightdict = {"data":data}
+	userfightdict["opponent"] = data.GetParam(1).replace("@", "")
 	viewerlist = Parent.GetViewerList()
-	if opponent == "":
+	if userfightdict["opponent"] == "":
 		message = MySet.needinfo.format(data.UserName, MySet.command)
 		SendResp(data, message)
 		return
-	if opponent.lower() == data.UserName.lower():
+	if userfightdict["opponent"].lower() == data.UserName.lower():
 		message = MySet.attackself.format(data.UserName)
 		SendResp(data, message)
 		return
 	check = False
 	for x in viewerlist:
-		if opponent.lower() == x.lower():
-			opponent = x
+		if userfightdict["opponent"].lower() == x.lower():
+			userfightdict["opponent"] = x
 			check = True
 			break
 	if not check:
-		message = MySet.targetoffline.format(data.UserName, opponent)
+		message = MySet.targetoffline.format(data.UserName, userfightdict["opponent"])
 		SendResp(data, message)
 		return
 
 	#Sets parameters
-	Currency = Parent.GetCurrencyName()
-	UPoints = Parent.GetPoints(data.UserName)
-	TPoints = Parent.GetPoints(opponent)
+	userfightdict["UPoints"] = Parent.GetPoints(data.UserName)
+	userfightdict["TPoints"] = Parent.GetPoints(userfightdict["opponent"])
 	#Sets command cost
-	if MySet.FightSetting == "Constant":
-		FightPoints = MySet.FightCValue
+	if MySet.UserChoiceSetting == "Standard" or MySet.UserChoiceSetting == "Default" and data.GetParam(2):
+		try:
+			userfightdict["fightpoints"] = int(data.GetParam(2))
+		except:
+			message = MySet.outsiderange.format(data.UserName, str(MySet.FightMinValue), str(MySet.FightMaxValue), MySet.command)
+			SendResp(data,message)
+			return
+		else:
+			if not MySet.FightMinValue <= userfightdict["fightpoints"] <= MySet.FightMaxValue:
+				message = MySet.outsiderange.format(data.UserName, str(MySet.FightMinValue), str(MySet.FightMaxValue), MySet.command)
+				SendResp(data, message)
+				return
 	else:
-		if MySet.FightMinValue < MySet.FightMaxValue:
-			FightPoints = Parent.GetRandom(MySet.FightMinValue, MySet.FightMaxValue+1)
-		else: 
-			FightPoints = Parent.GetRandom(MySet.FightMaxValue, MySet.FightMinValue+1)
+		if MySet.FightSetting == "Constant":
+			userfightdict["fightpoints"] = MySet.FightCValue
+		else:
+			if MySet.FightMinValue < MySet.FightMaxValue:
+				userfightdict["fightpoints"] = Parent.GetRandom(MySet.FightMinValue, MySet.FightMaxValue+1)
+			else: 
+				userfightdict["fightpoints"] = Parent.GetRandom(MySet.FightMaxValue, MySet.FightMinValue+1)
 	#Checks that all parties have enough points
-	if Parent.GetPoints(data.User) < FightPoints:
-		message = MySet.notenough.format(data.UserName, str(FightPoints), Currency, str(UPoints))
+	if Parent.GetPoints(data.User) < userfightdict["fightpoints"]:
+		message = MySet.notenough.format(data.UserName, str(userfightdict["fightpoints"]), Parent.GetCurrencyName(), str(userfightdict["UPoints"]))
 		SendResp(data, message)
 		return
-	if TPoints < FightPoints:
-		message = MySet.opponentnotenough.format(opponent, str(FightPoints), Currency, str(TPoints))
+	if userfightdict["TPoints"] < userfightdict["fightpoints"]:
+		message = MySet.opponentnotenough.format(userfightdict["opponent"], str(userfightdict["fightpoints"]), Parent.GetCurrencyName(), str(userfightdict["TPoints"]))
 		SendResp(data, message)
 		return
-	opponentpoints = {opponent: FightPoints}
+	userfightdict["opponentpoints"] = {userfightdict["opponent"]: userfightdict["fightpoints"]}
+	#Approval system
+	if MySet.NeedApproval:
+		global fightDict
+		userfightdict["timestamp"] = int(time())
+		fightDict[data.UserName] = userfightdict
+		message = MySet.challengeissued.format(data.UserName, userfightdict["opponent"], MySet.acceptcommand, str(MySet.accepttime))
+		SendResp(data, message)
+	else:
+		Attack(data, userfightdict)
+
+def Attack(data, userfightdict):
+	"""Handles the actual fight component"""
 	#Loads weapons
 	with codecs.open(Weapons, encoding="utf-8-sig", mode="r") as file:
 		Item = [line.strip() for line in file]
@@ -232,7 +277,7 @@ def Fight(data):
 			count = count + 1
 			if count == 3:
 				message = "Despite my best efforts, we only seem to have one weapon available!"
-				SendResp(data, message)
+				SendResp(userfightdict["data"], message)
 				break
 	#Loads fight message
 	with codecs.open(FightDescriptions, encoding="utf-8-sig", mode="r") as file:
@@ -240,22 +285,24 @@ def Fight(data):
 		VictoryMessage = Item[Parent.GetRandom(1, len(Item))]
 	#Determines winner
 	if MySet.FightAttWinChance >= Parent.GetRandom(0, 101):
-		Parent.RemovePointsAll(opponentpoints)
-		Parent.AddPoints(data.User,data.UserName,FightPoints)
-		message = VictoryMessage.format(data.UserName, UWeapon, opponent, OWeapon)
-		SendResp(data, message)
-		message = "{0}, you WON {2} {3}. {1}, you LOST {2} {3}".format(data.UserName, opponent, FightPoints, Currency)
-		SendResp(data, message)
+		Parent.RemovePointsAll(userfightdict["opponentpoints"])
+		Parent.AddPoints(userfightdict["data"].User,userfightdict["data"].UserName,userfightdict["fightpoints"])
+		message = VictoryMessage.format(userfightdict["data"].UserName, UWeapon, userfightdict["opponent"], OWeapon)
+		SendResp(userfightdict["data"], message)
+		message = "{0}, you WON {2} {3}. {1}, you LOST {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponent"], userfightdict["fightpoints"], Parent.GetCurrencyName())
+		SendResp(userfightdict["data"], message)
 	else:
-		Parent.RemovePoints(data.User,data.UserName, FightPoints)
-		Parent.AddPointsAll(opponentpoints)
-		message = VictoryMessage.format(opponent, OWeapon, data.UserName, UWeapon)
-		SendResp(data, message)
-		message = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}".format(data.UserName, opponent, FightPoints, Currency)
-		SendResp(data, message)
+		Parent.RemovePoints(userfightdict["data"].User,userfightdict["data"].UserName, userfightdict["fightpoints"])
+		Parent.AddPointsAll(userfightdict["opponentpoints"])
+		message = VictoryMessage.format(userfightdict["opponent"], OWeapon, userfightdict["data"].UserName, UWeapon)
+		SendResp(userfightdict["data"], message)
+		message = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponent"], userfightdict["fightpoints"], Parent.GetCurrencyName())
+		SendResp(userfightdict["data"], message)
 	command = MySet.command.lower()
 	Parent.AddCooldown(ScriptName,command,MySet.timerCooldown)
-	Parent.AddUserCooldown(ScriptName,command,data.User,MySet.timerUserCooldown)
+	Parent.AddUserCooldown(ScriptName,command,userfightdict["data"].User,MySet.timerUserCooldown)
+
+
 
 #---------------------------------------
 # Classes
@@ -282,15 +329,22 @@ class Settings:
 			self.FightPermission = "Everyone"
 			self.FightPermissionInfo = ""
 			self.FightAttWinChance = 50
-			self.FightSetting = "Random"
+			self.UserChoiceSetting = "Default"
+			self.FightSetting = "Constant"
 			self.FightCValue = 250
 			self.FightMinValue = 100
 			self.FightMaxValue = 500
+			self.NeedApproval = False
+			self.acceptcommand = "accept"
+			self.accepttime = 180
+			self.challengeissued = "{0} has issued a challenge against {1}; Type {2} in chat within the next {3} seconds to accept!"
+			self.nochallenge = "Sorry {0}, but there are no challenges for you to confirm currently!"
 			self.targetoffline = "Hey, that viewer isn't online right now, fighting them would be unfair!"
 			self.needinfo = "You must choose a target when using the {0} command!"
 			self.attackself = "Trying to fight yourself? That's a little angsty"
 			self.respNotLive = "Sorry {0}, but the stream must be live in order to use that command."
 			self.notenough = "{0} -> you don't have the {1} {2} required to use this command."
+			self.outsiderange = "{0} -> you need to enter a number between {1} and {2} for the amount to fight for! Format: {3} (opponent name) (amount)"
 			self.opponentnotenough = "{0} doesn't have enough {2}!"
 			self.notperm = "{0} -> you don't have permission to use this command. permission is: [{1} / {2}]"
 		

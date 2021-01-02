@@ -11,6 +11,7 @@ Website: https://www.twitch.tv/xailran
 #     Versions      #
 #####################
 
+1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
 1.0.0 - Initial Release
 
 Known bugs:
@@ -24,6 +25,7 @@ Set weapons that can be used in the weapons.txt, and use the FightResponses.txt 
 !fight
 	Like the default Duel minigame, but you choose what weapons viewers will randomly use!
 	"!fight @target" or "!fight target". Enjoy the action!
+	If users can choose how much to fight for (set in the UI), "!fight target value" will be the command to use
 
 #######################
 #   Default Weapons   #
@@ -43,7 +45,7 @@ train
 ######################
 #   Future Updates   #
 ######################
-None planned, share your ideas with me!
+Add command for adding weapons to the fight file
 
 ################################
 #   Other Scripts by Xailran   #
@@ -51,16 +53,21 @@ None planned, share your ideas with me!
 Please note that commissioned scripts come with idea and sale protection. These scripts are not included in the list below
 Idea protection means that I will not share any ideas without permission from the client.
 Sale protection means that I will not give away a script for free that someone else has paid for, without permission from the original client.
+Commissioning the script only gives the client the rights to use the script, not to sell or otherwise distribute the script.
 Existing clients are able to request early release versions of public scripts. If you would like to commission a script, send me a message on Discord!
 
 Public Scripts:
 Store (1.5.1) (2.0.0 coming out soon!)
-Songlist Exporter (1.0.0)
-Fight (1.0.0)
-The Song Didn't Play (in development)
-Total Points (in planning)
+Fight (1.1.0)
+Xailran's Script Bundle
+	The Song Didn't Play (1.0.0)
+	Points on Join (1.0.0)
+	Next Songs (1.0.0)
+	Songlist Exporter (1.0.0)
+	Word Count Parameters (1.1.0)
+	$delay Parameter (1.0.0)
 
-Up to date as of 5/12/2018
+Up to date as of 10/02/2019
 
 #############################################
 #   Donations are never expected, but any   #

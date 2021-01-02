@@ -1,0 +1,199 @@
+{
+	"output_file": "settings.json",
+	"onlylive": {
+	"type": "checkbox",
+	"value": false,
+	"label": "Only when live",
+	"tooltip": "Minigames are only active while stream is live.",
+	"group": "General"
+	},
+	"command": {
+	"type": "textbox",
+	"value": "!fight",
+	"label": "Command name",
+	"tooltip": "The command the bot will respond to for this game",
+	"group": "General"
+	},
+	"FightPermission": {
+	"type": "dropdown",
+	"value": "Everyone",
+	"items": ["Everyone","Regular","Subscriber","GameWisp Subscriber","Min_Rank","Min_Points","Min_Hours","Moderator","Editor","Caster"],
+	"label": "Permission level",
+	"tooltip": "Set a minimum permission level required to play the Fight minigame!",
+	"group": "General"
+	},
+	"FightPermissionInfo": {
+	"type": "textbox",
+	"value": "",
+	"label": "Permission level info",
+	"tooltip": "Set the rank, points or hours for permission",
+	"group": "General"
+	},
+	"castercd": {
+	"type": "checkbox",
+	"value": true,
+	"label": "Caster ignores cooldown",
+	"tooltip": "If checked the broadcaster ignore cooldowns!",
+	"group": "Cooldown"
+	},
+	"usecd": {
+	"type": "checkbox",
+	"value": true,
+	"label": "Use cooldown message",
+	"tooltip": "To display cooldown message?",
+	"group": "Cooldown"
+	},
+	"timerCooldown": {
+	"type": "numberbox",
+	"label": "Cooldown (seconds)",
+	"value": 5,
+	"tooltip": "Cooldown timer in seconds.",
+	"group": "Cooldown"
+	},
+	"oncooldown": {
+	"type": "textbox",
+	"value": "{0} the command is still on cooldown for {1} seconds!",
+	"label": "Cooldown response",
+	"tooltip": "The message that the bot will display when the command is on cooldown. \r\n {0} = user \r\n {1} = time remaining",
+	"group": "Cooldown"
+	},
+	"timerUserCooldown": {
+	"type": "numberbox",
+	"label": "User cooldown (seconds)",
+	"value": 30,
+	"tooltip": "User Cooldown timer in seconds.",
+	"group": "Cooldown"
+	},
+	"onusercooldown": {
+	"type": "textbox",
+	"value": "{0} the command is still on user cooldown for {1} seconds!",
+	"label": "User cooldown response",
+	"tooltip": "The message that the bot will display when the command is on user cooldown. \r\n {0} = user \r\n {1} = time remaining",
+	"group": "Cooldown"
+	},
+	"FightAttWinChance": {
+	"type": "numberbox",
+	"value": 50,
+	"label": "Attacker Win Chance (%)",
+	"tooltip": "Set the chance that the person who started the fight will win",
+	"group": "Fight Values"
+	},
+	"FightSetting": {
+	"type": "dropdown",
+	"value": "Constant",
+	"items": ["Constant","Random"],
+	"label": "Fight Reward Type",
+	"tooltip": "Set how points should be earned/lost depending on fight result.\r\nConstant = Amount lost/won will always be the same. Set value below\r\nRandom = Amount users lose will be randomly determined based on min/max values below",
+	"group": "Fight Values"
+	},
+	"FightCValue": {
+	"type": "numberbox",
+	"value": 250,
+	"label": "Constant value",
+	"tooltip": "If using the Constant setting in Points Setting, this is where you set its value",
+	"group": "Fight Values"
+	},
+	"FightMinValue": {
+	"type": "numberbox",
+	"value": 100,
+	"label": "Minimum value",
+	"tooltip": "If using the Random setting in Points Setting, this is where you set its minimum value",
+	"group": "Fight Values"
+	},
+	"FightMaxValue": {
+	"type": "numberbox",
+	"value": 500,
+	"label": "Maximum value",
+	"tooltip": "If using the Random setting in Points Setting, this is where you set its maximum value",
+	"group": "Fight Values"
+	},
+	"respNotLive": {
+	"type": "textbox",
+	"value": "Sorry {0}, but the stream must be live in order to use that command.",
+	"label": "Stream not live",
+	"tooltip": "Message that will display if user attempts to use the command while stream is not live. \r\n {0} = User",
+	"group": "Response Messages"
+	},
+	"notenough": {
+	"type": "textbox",
+	"value": "{0} -> you don't have the {1} {2} required to use this command.",
+	"label": "Not enough points (user)",
+	"tooltip": "Response when user doesn't have enough currency. \r\n{0} = user \r\n{1} = command cost\r\n{2} = currencyname\r\n{3} = user points",
+	"group": "Response Messages"
+	},
+	"opponentnotenough": {
+	"type": "textbox",
+	"value": "{0} doesn't have enough {2}!",
+	"label": "Not enough points (target)",
+	"tooltip": "Response when target doesn't have enough currency. \r\n{0} = target \r\n{1} = command cost\r\n{2} = currencyname\r\n{3} = target points",
+	"group": "Response Messages"
+	},
+	"notperm": {
+	"type": "textbox",
+	"value": "{0} -> you don't have permission to use this command. permission is: [{1} / {2}]",
+	"label": "Not Permitted",
+	"tooltip": "Message to send when the user permission doesn't match minigame permission \r\n{0} = user \r\n{1} = permission\r\n{2} = Info",
+	"group": "Response Messages"
+	},
+	"needinfo": {
+	"type": "textbox",
+	"value": "You must choose a target when using the {0} command!",
+	"label": "Target not chosen",
+	"tooltip": "Message to send when a target isn't chosen \r\n{0} = user \r\n{1} = command",
+	"group": "Response Messages"
+	},
+	"attackself": {
+	"type": "textbox",
+	"value": "Trying to fight yourself? That's a little angsty",
+	"label": "User fighting themselves",
+	"tooltip": "Message to send when user chooses themself as the target\r\n{0} = user",
+	"group": "Response Messages"
+	},
+	"taregtoffline": {
+	"type": "textbox",
+	"value": "Hey, {1} isn't online right now, fighting them would be unfair!",
+	"label": "User fighting themselves",
+	"tooltip": "Message to send when user chooses themself as the target\r\n{0} = user\r\n{1} = target",
+	"group": "Response Messages"
+	},
+	"FightWeaponsButton": {
+	"type": "button",
+	"label": "Open weapons file",
+	"tooltip": "Opens the file containing all the weapons viewers can use",
+	"function": "WeaponsFile",
+	"wsevent": "",
+	"group": ""
+	},
+	"resetweaponsfile": {
+	"type": "button",
+	"label": "Restore Default Weapons",
+	"tooltip": "Restores the weapons file to the default!",
+	"function": "ResetWeaponsFile",
+	"wsevent": "",
+	"group": ""
+	},
+	"FightResponsesButton": {
+	"type": "button",
+	"label": "Open responses file",
+	"tooltip": "Opens the file containing all the possible messages that can be used",
+	"function": "FightDescriptionsFile",
+	"wsevent": "",
+	"group": ""
+	},
+	"openReadMe": {
+	"type": "button",
+	"label": "Open README.txt",
+	"tooltip": "Opens the README.txt for this script",
+	"function": "OpenReadMe",
+	"wsevent": "",
+	"group": ""
+	},
+	"setdefaults": {
+	"type": "button",
+	"label": "Restore Default Settings",
+	"tooltip": "Restores all script settings to the default ones!",
+	"function": "SetDefaults",
+	"wsevent": "",
+	"group": ""
+	}
+}

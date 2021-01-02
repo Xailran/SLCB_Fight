@@ -1,0 +1,10 @@
+apple
+axe
+boomerang
+chainsaw
+golf club
+pistol
+spear
+spoon
+taco
+train

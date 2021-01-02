@@ -1,0 +1,8 @@
+Formatting: {0} = winner, {1} = winner's weapon, {2} = loser, {3} = loser's weapon
+{0} used a(n) {1} to fight {2}, and crushed in their skull!
+Failure! Not for you though {0}. Your glorious {1} pulverised {2}'s {3}.
+Ahhh, victory! {0}'s fantastic {1} smashed {2} with their {3}.
+With a {1}, {0} attacked {2}. Even with their {3}. {2} could do nothing to win this fight!
+{2} used a(n) {3} with horrible results! {0} with their {1} obliterated them!
+Ahhh, victory! Not for you though {2}. Your puny {3} lost against {0}'s {1}.
+{0} used a(n) {1} to fight {2} who used a(n) {3}, and {0} won!

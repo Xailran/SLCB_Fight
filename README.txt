@@ -11,6 +11,10 @@ Website: https://www.twitch.tv/xailran
 #     Versions      #
 #####################
 
+1.3.3 - Fixed all messages to be customizable
+1.3.2 - Made changes to file handling, so that weapons and description files are no longer reset on an update.
+1.3.1 - Added YouTube compatibility
+1.3.0 - Added Response Reset button.
 1.2.2 - Changed when cooldown starts
 1.2.1 - Mixer-specific and general bug fixes
 1.2.0 - Added $addweapon() parameter.

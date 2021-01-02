@@ -19,13 +19,17 @@ from time import time
 ScriptName = "Fight"
 Website = "https://www.twitch.tv/Xailran"
 Creator = "Xailran"
-Version = "1.2.2"
+Version = "1.3.3"
 Description = "Let viewers fight each other with a variety of weapons"
 
 #---------------------------------------
 # Versions
 #---------------------------------------
 """
+1.3.3 - Fixed all messages to be customizable
+1.3.2 - Made changes to file handling, so that weapons and description files are no longer reset on an update.
+1.3.1 - Added YouTube compatibility
+1.3.0 - Added Response Reset button.
 1.2.2 - Changed when cooldown starts
 1.2.1 - Mixer-specific and general bug fixes
 1.2.0 - Added $addweapon() parameter.
@@ -95,11 +99,20 @@ def ResetWeaponsFile():
 							 , u"Reset weapons file?", 4)
 
 	if returnValue == MB_YES:
-		location = os.path.join(os.path.dirname(__file__), "Weapons.txt")
-		with codecs.open(location, "w", "utf-8") as f:
-			textline = "apple\r\naxe\r\nboomerang\r\nchainsaw\r\ngolf club\r\npistol\r\nspear\r\nspoon\r\ntaco\r\ntrain"
-			f.write(textline)
+		CreateWeapons()
 		MessageBox(0, u"Weapons successfully restored to default values!"
+					, u"Reset complete!", 0)
+
+def ResetResponsesFile():
+	"""Resets responses file back to defaults"""
+	winsound.MessageBeep()
+	returnValue = MessageBox(0, u"You are about to reset the responses file, "
+								"are you sure you want to continue?"
+							 , u"Reset responses file?", 4)
+
+	if returnValue == MB_YES:
+		CreateResponses()
+		MessageBox(0, u"Responses successfully restored to default values!"
 					, u"Reset complete!", 0)
 
 #---------------------------------------
@@ -184,6 +197,8 @@ def Execute(data):
 				del fightDict[user]
 			else:
 				if userdict["opponentname"].lower() == data.UserName.lower():
+					if data.IsFromYoutube():
+						userdict["opponentid"] = data.User
 					challenge = True
 					Attack(userdict["data"], userdict)
 					del fightDict[user]
@@ -225,9 +240,12 @@ def Parse(parseString, userid, username, targetid, targetname, message):
 def Fight(data):
 	"""Full setup for attack function"""
 	#Establishes opponent
+	global MySet
 	userfightdict = {"data":data}
 	userfightdict["opponentname"] = data.GetParam(1).replace("@", "")
-	viewerlist = Parent.GetViewerList()
+	viewerlist = [x for x in Parent.GetViewerList()]
+	if data.IsFromTwitch():
+		viewerlist.append(Parent.GetChannelName())
 	if userfightdict["opponentname"] == "":
 		message = MySet.needinfo.format(data.UserName, MySet.command)
 		SendResp(data, message)
@@ -237,12 +255,18 @@ def Fight(data):
 		SendResp(data, message)
 		return
 	check = False
-	for x in viewerlist:
-		if userfightdict["opponentname"].lower() == Parent.GetDisplayName(x.lower()).lower():
-			userfightdict["opponentname"] = Parent.GetDisplayName(x)
-			userfightdict["opponentid"] = x.lower()
-			check = True
-			break
+	if data.IsFromYoutube():
+		check = True
+		MySet.NeedApproval = True
+		userfightdict["opponentname"] = Parent.GetDisplayName(userfightdict["opponentname"].lower())
+		userfightdict["opponentid"] = userfightdict["opponentname"].lower()
+	else:
+		for x in viewerlist:
+			if userfightdict["opponentname"].lower() == Parent.GetDisplayName(x.lower()).lower():
+				userfightdict["opponentname"] = Parent.GetDisplayName(x)
+				userfightdict["opponentid"] = x.lower()
+				check = True
+				break
 	if not check:
 		message = MySet.targetoffline.format(data.UserName, userfightdict["opponentname"])
 		SendResp(data, message)
@@ -296,6 +320,8 @@ def Fight(data):
 def Attack(data, userfightdict):
 	"""Handles the actual fight component"""
 	#Loads weapons
+	if not os.path.exists(Weapons):
+		CreateWeapons()
 	with codecs.open(Weapons, encoding="utf-8-sig", mode="r") as file:
 		Item = [line.strip() for line in file]
 		UWeapon = Item[Parent.GetRandom(0, len(Item))]
@@ -305,10 +331,12 @@ def Attack(data, userfightdict):
 			OWeapon = Item[Parent.GetRandom(0, len(Item))]
 			count = count + 1
 			if count == 3:
-				message = "Despite my best efforts, we only seem to have one weapon available!"
+				message = MySet.identicalweapons
 				SendResp(userfightdict["data"], message)
 				break
 	#Loads fight message
+	if not os.path.exists(FightDescriptions):
+		CreateResponses()
 	with codecs.open(FightDescriptions, encoding="utf-8-sig", mode="r") as file:
 		Item = [line.strip() for line in file]
 		VictoryMessage = Item[Parent.GetRandom(1, len(Item))]
@@ -318,15 +346,27 @@ def Attack(data, userfightdict):
 		Parent.AddPoints(userfightdict["data"].User,userfightdict["data"].UserName,userfightdict["fightpoints"])
 		message = VictoryMessage.format(userfightdict["data"].UserName, UWeapon, userfightdict["opponentname"], OWeapon)
 		SendResp(userfightdict["data"], message)
-		message = "{0}, you WON {2} {3}. {1}, you LOST {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
+		message = MySet.userwon.format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
 		SendResp(userfightdict["data"], message)
 	else:
 		Parent.RemovePoints(userfightdict["data"].User,userfightdict["data"].UserName, userfightdict["fightpoints"])
 		Parent.AddPoints(userfightdict["opponentid"], userfightdict["opponentname"], userfightdict["fightpoints"])
 		message = VictoryMessage.format(userfightdict["opponentname"], OWeapon, userfightdict["data"].UserName, UWeapon)
 		SendResp(userfightdict["data"], message)
-		message = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
+		message = MySet.targetwon.format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
 		SendResp(userfightdict["data"], message)
+
+def CreateWeapons():
+	"""Replaces/creates weapons file with default weapons"""
+	with codecs.open(Weapons, "w", "utf-8") as f:
+		textline = "apple\r\naxe\r\nboomerang\r\nchainsaw\r\ngolf club\r\npistol\r\nspear\r\nspoon\r\ntaco\r\ntrain"
+		f.write(textline)
+
+def CreateResponses():
+	"""Replaces/creates responses file with default responses"""
+	with codecs.open(FightDescriptions, "w", "utf-8") as f:
+		textline = "Formatting: {0} = winner, {1} = winner's weapon, {2} = loser, {3} = loser's weapon\r\n{0} used a(n) {1} to fight {2}, and crushed in their skull!\r\nFailure! Not for you though {0}. Your glorious {1} pulverised {2}'s {3}.\r\nAhhh, victory! {0}'s fantastic {1} smashed {2} with their {3}.\r\nWith a {1}, {0} attacked {2}. Even with their {3}. {2} could do nothing to win this fight!\r\n{2} used a(n) {3} with horrible results! {0} with their {1} obliterated them!\r\nAhhh, victory! Not for you though {2}. Your puny {3} lost against {0}'s {1}.\r\n{0} used a(n) {1} to fight {2} who used a(n) {3}, and {0} won!"
+		f.write(textline)
 
 #---------------------------------------
 # Classes
@@ -370,6 +410,9 @@ class Settings:
 			self.notenough = "{0} -> you don't have the {1} {2} required to use this command."
 			self.outsiderange = "{0} -> you need to enter a number between {1} and {2} for the amount to fight for! Format: {3} (opponent name) (amount)"
 			self.opponentnotenough = "{0} doesn't have enough {2}!"
+			self.userwon = "{0}, you WON {2} {3}. {1}, you LOST {2} {3}"
+			self.targetwon = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}"
+			self.identicalweapons = "Despite my best efforts, we only seem to have one weapon available!"
 			self.notperm = "{0} -> you don't have permission to use this command. permission is: [{1} / {2}]"
 		
 		self.parent = parent

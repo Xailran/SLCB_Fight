@@ -206,7 +206,28 @@
 	"tooltip": "Message to send when user chooses themself as the target\r\n{0} = user",
 	"group": "Response Messages"
 	},
-	"taregtoffline": {
+	"userwon": {
+	"type": "textbox",
+	"value": "{0}, you WON {2} {3}. {1}, you LOST {2} {3}",
+	"label": "User won the fight",
+	"tooltip": "Consistent message that says what the outcome of the fight was without any fancy flavouring. Sent when the person who started the fight is the winner\r\n{0} = user\r\n{1} = opponent\r\n{2} = amount lost/won\r\n{3} = currency name",
+	"group": "Response Messages"
+	},
+	"targetwon": {
+	"type": "textbox",
+	"value": "{0}, you LOST {2} {3}. {1}, you WON {2} {3}",
+	"label": "Target won the fight",
+	"tooltip": "Consistent message that says what the outcome of the fight was without any fancy flavouring. Sent when the person who started the fight is the loser\r\n{0} = user\r\n{1} = opponent\r\n{2} = amount lost/won\r\n{3} = currency name",
+	"group": "Response Messages"
+	},
+	"identicalweapons": {
+	"type": "textbox",
+	"value": "Despite my best efforts, we only seem to have one weapon available!",
+	"label": "Identical weapons selected",
+	"tooltip": "Message to send user and target both have same weapon\r\nIf user and target have the same weapon, the script will try to select a new weapon 3 times. If that fails, this message will be sent",
+	"group": "Response Messages"
+	},
+	"targetoffline": {
 	"type": "textbox",
 	"value": "Hey, {1} isn't online right now, fighting them would be unfair!",
 	"label": "User fighting themselves",
@@ -234,6 +255,14 @@
 	"label": "Open responses file",
 	"tooltip": "Opens the file containing all the possible messages that can be used",
 	"function": "FightDescriptionsFile",
+	"wsevent": "",
+	"group": ""
+	},
+	"resetresponsesfile": {
+	"type": "button",
+	"label": "Restore Default Responses",
+	"tooltip": "Restores the responses file to the default!",
+	"function": "ResetResponsesFile",
 	"wsevent": "",
 	"group": ""
 	},

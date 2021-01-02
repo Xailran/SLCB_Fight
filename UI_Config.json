@@ -194,7 +194,7 @@
 	},
 	"needinfo": {
 	"type": "textbox",
-	"value": "You must choose a target when using the {0} command!",
+	"value": "You must choose a target when using the {1} command!",
 	"label": "Target not chosen",
 	"tooltip": "Message to send when a target isn't chosen \r\n{0} = user \r\n{1} = command",
 	"group": "Response Messages"

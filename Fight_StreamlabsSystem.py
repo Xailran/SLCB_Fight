@@ -19,13 +19,14 @@ from time import time
 ScriptName = "Fight"
 Website = "https://www.twitch.tv/Xailran"
 Creator = "Xailran"
-Version = "1.2.0"
+Version = "1.2.1"
 Description = "Let viewers fight each other with a variety of weapons"
 
 #---------------------------------------
 # Versions
 #---------------------------------------
 """
+1.2.1 - Mixer-specific and general bug fixes
 1.2.0 - Added $addweapon() parameter.
 1.1.1 - Fixed script to properly work for Mixer and YT. Also fixed bug with using the "accept" settings
 1.1.0 - Added UI options for viewers to select amount of points to fight for, and option for users to "accept" a fight before it actually happens. (Funded by twitch.tv/GodOfRanch)
@@ -181,7 +182,7 @@ def Execute(data):
 			if userdict["timestamp"] + MySet.accepttime < int(time()):
 				del fightDict[user]
 			else:
-				if userdict["opponent"].lower() == data.UserName.lower():
+				if userdict["opponentname"].lower() == data.UserName.lower():
 					challenge = True
 					Attack(userdict["data"], userdict)
 					del fightDict[user]
@@ -224,30 +225,31 @@ def Fight(data):
 	"""Full setup for attack function"""
 	#Establishes opponent
 	userfightdict = {"data":data}
-	userfightdict["opponent"] = data.GetParam(1).replace("@", "")
+	userfightdict["opponentname"] = data.GetParam(1).replace("@", "")
 	viewerlist = Parent.GetViewerList()
-	if userfightdict["opponent"] == "":
+	if userfightdict["opponentname"] == "":
 		message = MySet.needinfo.format(data.UserName, MySet.command)
 		SendResp(data, message)
 		return
-	if userfightdict["opponent"].lower() == data.UserName.lower():
+	if userfightdict["opponentname"].lower() == data.UserName.lower():
 		message = MySet.attackself.format(data.UserName)
 		SendResp(data, message)
 		return
 	check = False
 	for x in viewerlist:
-		if userfightdict["opponent"].lower() == x.lower():
-			userfightdict["opponent"] = x
+		if userfightdict["opponentname"].lower() == Parent.GetDisplayName(x.lower()).lower():
+			userfightdict["opponentname"] = Parent.GetDisplayName(x)
+			userfightdict["opponentid"] = x.lower()
 			check = True
 			break
 	if not check:
-		message = MySet.targetoffline.format(data.UserName, userfightdict["opponent"])
+		message = MySet.targetoffline.format(data.UserName, userfightdict["opponentname"])
 		SendResp(data, message)
 		return
 
 	#Sets parameters
-	userfightdict["UPoints"] = Parent.GetPoints(data.UserName)
-	userfightdict["TPoints"] = Parent.GetPoints(userfightdict["opponent"])
+	userfightdict["UPoints"] = Parent.GetPoints(data.User)
+	userfightdict["TPoints"] = Parent.GetPoints(userfightdict["opponentid"])
 	#Sets command cost
 	if MySet.UserChoiceSetting == "Standard" or MySet.UserChoiceSetting == "Default" and data.GetParam(2):
 		try:
@@ -275,16 +277,15 @@ def Fight(data):
 		SendResp(data, message)
 		return
 	if userfightdict["TPoints"] < userfightdict["fightpoints"]:
-		message = MySet.opponentnotenough.format(userfightdict["opponent"], str(userfightdict["fightpoints"]), Parent.GetCurrencyName(), str(userfightdict["TPoints"]))
+		message = MySet.opponentnotenough.format(userfightdict["opponentname"], str(userfightdict["fightpoints"]), Parent.GetCurrencyName(), str(userfightdict["TPoints"]))
 		SendResp(data, message)
 		return
-	userfightdict["opponentpoints"] = {userfightdict["opponent"]: userfightdict["fightpoints"]}
 	#Approval system
 	if MySet.NeedApproval:
 		global fightDict
 		userfightdict["timestamp"] = int(time())
 		fightDict[data.UserName] = userfightdict
-		message = MySet.challengeissued.format(data.UserName, userfightdict["opponent"], MySet.acceptcommand, str(MySet.accepttime))
+		message = MySet.challengeissued.format(data.UserName, userfightdict["opponentname"], MySet.acceptcommand, str(MySet.accepttime))
 		SendResp(data, message)
 	else:
 		Attack(data, userfightdict)
@@ -310,22 +311,21 @@ def Attack(data, userfightdict):
 		VictoryMessage = Item[Parent.GetRandom(1, len(Item))]
 	#Determines winner
 	if MySet.FightAttWinChance >= Parent.GetRandom(0, 101):
-		Parent.RemovePointsAll(userfightdict["opponentpoints"])
+		Parent.RemovePoints(userfightdict["opponentid"], userfightdict["opponentname"], userfightdict["fightpoints"])
 		Parent.AddPoints(userfightdict["data"].User,userfightdict["data"].UserName,userfightdict["fightpoints"])
-		message = VictoryMessage.format(userfightdict["data"].UserName, UWeapon, userfightdict["opponent"], OWeapon)
+		message = VictoryMessage.format(userfightdict["data"].UserName, UWeapon, userfightdict["opponentname"], OWeapon)
 		SendResp(userfightdict["data"], message)
-		message = "{0}, you WON {2} {3}. {1}, you LOST {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponent"], userfightdict["fightpoints"], Parent.GetCurrencyName())
+		message = "{0}, you WON {2} {3}. {1}, you LOST {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
 		SendResp(userfightdict["data"], message)
 	else:
 		Parent.RemovePoints(userfightdict["data"].User,userfightdict["data"].UserName, userfightdict["fightpoints"])
-		Parent.AddPointsAll(userfightdict["opponentpoints"])
-		message = VictoryMessage.format(userfightdict["opponent"], OWeapon, userfightdict["data"].UserName, UWeapon)
+		Parent.AddPoints(userfightdict["opponentid"], userfightdict["opponentname"], userfightdict["fightpoints"])
+		message = VictoryMessage.format(userfightdict["opponentname"], OWeapon, userfightdict["data"].UserName, UWeapon)
 		SendResp(userfightdict["data"], message)
-		message = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponent"], userfightdict["fightpoints"], Parent.GetCurrencyName())
+		message = "{0}, you LOST {2} {3}. {1}, you WON {2} {3}".format(userfightdict["data"].UserName, userfightdict["opponentname"], userfightdict["fightpoints"], Parent.GetCurrencyName())
 		SendResp(userfightdict["data"], message)
-	command = MySet.command.lower()
-	Parent.AddCooldown(ScriptName,command,MySet.timerCooldown)
-	Parent.AddUserCooldown(ScriptName,command,userfightdict["data"].User,MySet.timerUserCooldown)
+	Parent.AddCooldown(ScriptName,MySet.command.lower(),MySet.timerCooldown)
+	Parent.AddUserCooldown(ScriptName,MySet.command.lower(),userfightdict["data"].User,MySet.timerUserCooldown)
 
 #---------------------------------------
 # Classes

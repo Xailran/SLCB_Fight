@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Script specific
+FightResponses.txt
+Weapons.txt
+settings.js
+settings.json
+
 # C extensions
 *.so
 
